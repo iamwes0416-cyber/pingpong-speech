@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Table Tennis Dream 練習</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fdf8ef;--card:#fff;--ink:#2b2b3a;--muted:#7a7a8c;--accent:#e4572e;--accent2:#2e86ab;--soft:#ffe9d6;--line:#eee3d3}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Nunito","Noto Sans TC",sans-serif}
+header{background:linear-gradient(135deg,#e4572e,#f3a712);color:#fff;padding:22px 18px 18px;text-align:center}
+header h1{margin:0;font-size:1.7rem;font-weight:800}
+header p{margin:6px 0 0;opacity:.92;font-size:.95rem}
+.player{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line);padding:12px 14px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;max-width:760px;margin:0 auto}
+.row+.row{margin-top:10px}
+button{font:inherit;border:0;cursor:pointer;border-radius:999px}
+#play{width:52px;height:52px;background:var(--accent);color:#fff;font-size:1.4rem;flex:none}
+#seek{flex:1;min-width:140px;accent-color:var(--accent)}
+.time{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.9rem;min-width:88px;text-align:right}
+.label{font-size:.85rem;color:var(--muted)}
+.speeds button{padding:6px 12px;background:var(--soft);color:var(--ink);font-weight:700}
+.speeds button.on{background:var(--accent2);color:#fff}
+.toggles label{display:inline-flex;align-items:center;gap:5px;background:#f3efe7;padding:6px 11px;border-radius:999px;font-size:.88rem;cursor:pointer}
+main{max-width:760px;margin:0 auto;padding:16px 14px 120px}
+.tip{background:#eef6fa;border-radius:12px;padding:10px 14px;font-size:.9rem;color:#285a70;margin-bottom:14px}
+.para{background:var(--card);border-radius:16px;padding:12px 14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.line{display:flex;gap:8px;align-items:flex-start;padding:5px 0}
+.say{flex:none;width:30px;height:30px;background:var(--soft);color:var(--accent);font-size:.8rem;margin-top:2px}
+.say.speaking{background:var(--accent);color:#fff}
+.en{font-size:1.28rem;line-height:1.6}
+.w{cursor:pointer;border-radius:5px;padding:0 1px}
+.w:hover{background:#fff1c9}
+.w.has{border-bottom:2px dotted #f3a712}
+.w.active{background:#ffd666}
+.zh{display:block;font-size:.95rem;color:var(--muted);margin-top:2px}
+.cue{display:block;font-size:.9rem;color:#b5401c;background:#fff3ec;border-radius:8px;padding:3px 8px;margin-top:4px;width:fit-content}
+.line{transition:background .2s}.line.now{background:#ffe08a;border-radius:10px;box-shadow:inset 5px 0 0 #e4572e;padding-left:6px}.line.now .en{font-weight:800}
+body.nozh .zh{display:none}
+body.nocue .cue{display:none}
+#pop{position:fixed;left:50%;bottom:18px;transform:translateX(-50%) translateY(140%);transition:transform .25s;background:#2b2b3a;color:#fff;border-radius:18px;padding:14px 18px;width:min(92vw,420px);z-index:10;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+#pop.show{transform:translateX(-50%) translateY(0)}
+#pop .top{display:flex;align-items:center;gap:10px}
+#pop .word{font-size:1.6rem;font-weight:800}
+#pop .again{background:#f3a712;color:#2b2b3a;padding:5px 12px;font-weight:700}
+#pop .slow{background:#555;color:#fff;padding:5px 12px}
+#pop .close{margin-left:auto;background:none;color:#aaa;font-size:1.3rem}
+#pop .mean{margin-top:6px;font-size:1.1rem}
+#pop .note{font-size:.85rem;color:#c9c9d6;margin-top:3px}
+.warn{display:none;background:#fff3cd;color:#7a5a00;padding:8px 12px;border-radius:10px;font-size:.88rem;margin-bottom:12px}
+
+.ic{width:34px;height:34px;background:#f3efe7;font-size:.95rem;flex:none}
+.r2{justify-content:space-between}
+.speeds{display:flex;gap:4px;flex-wrap:nowrap}
+.pill{padding:5px 11px;background:#e8e0ff;font-size:.85rem}
+#settings{display:none;border-top:1px dashed var(--line);padding-top:8px}
+#settings.open{display:flex}
+.w.has{border-bottom:1.5px dotted #f6c56b}
+@media (max-width:600px){
+  header{padding:10px 12px}
+  header h1{font-size:1.15rem}
+  header p{display:none}
+  .player{padding:8px 10px}
+  .row+.row{margin-top:6px}
+  #play{width:42px;height:42px;font-size:1.1rem}
+  .time{font-size:.75rem;min-width:66px}
+  .speeds button{padding:5px 8px;font-size:.8rem}
+  .toggles label{font-size:.8rem;padding:4px 9px}
+  main{padding:10px 8px 120px}
+  .tip{font-size:.8rem;padding:7px 10px;margin-bottom:8px}
+  .para{padding:8px 10px;border-radius:12px;margin-bottom:8px}
+  .line{gap:6px;padding:3px 0}
+  .say{width:26px;height:26px;font-size:.7rem}
+  .en{font-size:1.08rem;line-height:1.5}
+  .zh{font-size:.82rem}
+  .cue{font-size:.78rem}
+}
+.loopbtn{padding:5px 10px;background:#f3efe7;font-size:.82rem;font-weight:700;white-space:nowrap}.loopbtn.on{background:#2e86ab;color:#fff}
+</style>
+</head>
+<body>
+<header>
+  <h1>🏓 My Table Tennis Dream</h1>
+  <p>英語演講練習｜點單字聽發音、看中文</p>
+</header>
+
+<div class="player">
+  <div class="row r1">
+    <button id="back5" class="ic" aria-label="倒退5秒">⏪</button>
+    <button id="play" aria-label="播放">▶</button>
+    <input id="seek" type="range" min="0" max="100" step="0.1" value="0">
+    <span class="time" id="time">0:00 / 0:00</span>
+  </div>
+  <div class="row r2">
+    <span class="speeds" id="speeds">
+      <button data-r="0.6">0.6×</button><button data-r="0.75">0.75×</button><button data-r="0.9">0.9×</button><button data-r="1" class="on">1×</button><button data-r="1.15">1.15×</button>
+    </span>
+    <span style="display:flex;gap:6px"><button id="loop" class="loopbtn">🔁 關</button><button id="gear" class="ic" aria-label="設定">⚙️</button></span>
+  </div>
+  <div class="row toggles" id="settings">
+    <label><input type="checkbox" id="tzh" checked> 中文</label>
+    <label><input type="checkbox" id="tcue" checked> 動作</label>
+    <label><input type="checkbox" id="tfollow" checked> 自動捲動</label>
+    <button id="calStart" class="pill">🎯 校正</button>
+  </div>
+</div>
+
+<main>
+  <div class="warn" id="warn">🔇 單字沒有聲音嗎？① 如果是從 LINE、FB 等 App 點開，請點右上角選「用 Safari / Chrome 開啟」。② iPhone / iPad 請關掉側邊靜音鍵、調大音量。③ 先按一次上方 ▶ 播放錄音，再點單字試試。</div>
+  <div class="tip">👆 <b>點任何單字</b>：聽發音＋看中文。<b>點 🔊</b>：念整句。有黃色虛線的是重點單字。</div>
+  <div id="script"></div>
+</main>
+
+<div id="cal" style="display:none;position:fixed;inset:auto 0 0 0;background:#2b2b3a;color:#fff;padding:14px;z-index:20;text-align:center">
+  <div id="calMsg" style="font-size:1rem;margin-bottom:8px"></div>
+  <div id="calNext" style="font-size:1.25rem;color:#ffd666;margin-bottom:10px"></div>
+  <button id="calTap" style="width:min(90vw,420px);padding:18px;background:#f3a712;color:#2b2b3a;font-size:1.3rem;font-weight:800">👆 這句開始了！</button>
+  <div style="margin-top:10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+    <button id="calUndo" style="padding:6px 14px;background:#555;color:#fff">↩ 退回一句</button>
+    <button id="calCancel" style="padding:6px 14px;background:#555;color:#fff">取消</button>
+    <button id="calReset" style="padding:6px 14px;background:#555;color:#fff">恢復原本自動切分</button>
+  </div>
+  <textarea id="calOut" readonly style="display:none;width:min(92vw,520px);height:70px;margin-top:10px;font-size:.75rem"></textarea>
+  <div><button id="calCopy" style="display:none;margin-top:6px;padding:6px 14px;background:#2e86ab;color:#fff">📋 複製校正資料</button></div>
+</div>
+
+<div id="pop" role="dialog">
+  <div class="top">
+    <span class="word" id="pword"></span>
+    <button class="again" id="pagain">🔊 再聽</button>
+    <button class="slow" id="pslow">🐢 慢速</button>
+    <button class="close" id="pclose" aria-label="關閉">✕</button>
+  </div>
+  <div class="mean" id="pmean"></div>
+  <div class="note" id="pnote"></div>
+</div>
+
+<audio id="audio" src="speech.mp3" preload="metadata"></audio>
+
+<script>
+const SCRIPT = [
+ [["Good morning, teachers and everyone!","各位老師、各位同學，大家早安！"],
+  ["My name is Tom.","我是 Tom。"]],
+ [["Do you know what my favorite sound is?","你們知道我最喜歡的聲音是什麼嗎？"],
+  ["Ping! Pong! Ping! Pong!","乒！乓！乒！乓！","動作：雙手輕輕模擬來回擊球"],
+  ["That's right! It's the sound of table tennis!","沒錯！就是打桌球的聲音！"]],
+ [["I am a table tennis player!","我是一名桌球選手！"],
+  ["I love playing table tennis!","我非常喜歡打桌球！"]],
+ [["When I was in second grade, I joined my school's table tennis team.","二年級的時候，我加入了學校的桌球隊。"],
+  ["I had never played before!","在那之前，我從來沒有打過桌球！"],
+  ["The ball moved so fast, and I missed it again and again.","桌球飛得好快，我一次又一次沒接到球。"],
+  ["But I laughed and said, \"One more time, please!\"","但我笑著說：「再來一次，拜託！」"],
+  ["Soon, table tennis became my favorite sport.","漸漸地，桌球成了我最喜歡的運動。"]],
+ [["Now, I practice hard every day.","現在，每天我都認真練習。"],
+  ["I move my feet fast and hit the ball again and again.","我快速移動腳步，一球接著一球揮拍擊球。"],
+  ["My shirt gets wet with sweat, and my legs get very tired.","我的衣服被汗水浸濕，雙腿也累得不得了。"],
+  ["I pick up so many balls, too!","而且，我還要撿好多好多球呢！"],
+  ["It is hard work, but I keep going.","雖然練球很辛苦，但我還是堅持下去。"],
+  ["Because I want to get better!","因為我想變得更厲害！"]],
+ [["My coach always cheers me on and says, \"Jiayou! You can do it!\"","教練總是鼓勵我說：「加油！你可以的！」"],
+  ["My teammates are like my family.","隊友們就像我的家人一樣。"],
+  ["We practice together, cheer for each other, and laugh together.","我們一起練習、互相加油，也一起開心歡笑。"]],
+ [["But playing table tennis is not always easy.","但是，打桌球並不總是那麼容易。","語氣：從這裡開始放慢"],
+  ["One day, I lost a big game.","有一天，我輸了一場重要的比賽。"],
+  ["I felt very sad, and I wanted to cry.","我非常難過，甚至想哭。"],
+  ["I thought, \"I practiced so hard. Why did I still lose?\"","我心想：「我這麼努力練習，為什麼還是輸了？」"],
+  ["I wiped my tears and took a deep breath.","我擦乾眼淚，深深吸了一口氣。","動作：輕擦眼淚，深吸一口氣"],
+  ["Then, I told myself,","接著，我告訴自己："],
+  ["\"It's okay! I'll try again!\"","「沒關係！我會再試一次！」","動作：抬頭，輕輕握拳｜語氣轉為堅定"]],
+ [["Now I know that losing helps me learn.","現在我知道，輸球也是學習的一部分。"],
+  ["Every time I practice, I get a little stronger and faster.","每一次練習，都讓我變得更強壯、更敏捷。"]],
+ [["My hero is Lin Yun-Ju.","我的偶像是林昀儒。"],
+  ["He is one of the best table tennis players in Taiwan.","他是臺灣最優秀的桌球選手之一。"],
+  ["He won a medal for Taiwan at the Olympics!","他曾經在奧運為臺灣贏得獎牌！"],
+  ["He is fast, strong, and never gives up.","他速度快、實力強，而且永不放棄。"],
+  ["When I watch him play, I feel so excited!","每當我看他比賽，都覺得非常興奮！"],
+  ["I want to be just like him.","我希望能成為像他一樣的選手。"]],
+ [["And I have a BIG dream!","而且，我有一個很大的夢想！"],
+  ["I want to play table tennis for Taiwan!","我想成為臺灣桌球國手！","語氣：說 Taiwan 時自信清晰"],
+  ["One day, I dream of wearing Taiwan's team uniform and playing against the best players in the world!","我夢想有一天，能穿上臺灣代表隊的球衣，和世界上最厲害的選手比賽！"],
+  ["I know it won't be easy.","我知道，這並不容易。"],
+  ["But I believe a true champion never gives up, even after losing!","但我相信，真正的冠軍即使輸了，也永遠不會放棄！","語氣：強調 never gives up"]],
+ [["Small boy, big dream!","小小的我，有著大大的夢想！","動作：雙手先靠近，再自然張開"],
+  ["Thank you for listening!","謝謝大家！"]]
+];
+
+const TIMING=[[0.36,2.22,[[0.4,0.59],[0.49,1.0],[0.9,1.27],[1.17,1.43],[1.33,2.13]]],[2.46,3.63,[[2.5,2.78],[2.68,3.15],[3.05,3.25],[3.15,3.54]]],[4.19,6.39,[[4.23,4.52],[4.42,4.77],[4.67,4.99],[4.89,5.12],[5.02,5.17],[5.07,5.95],[5.85,6.19],[6.09,6.3]]],[6.64,9.75,[[6.67,7.24],[7.39,8.1],[8.23,8.86],[9.01,9.65]]],[10.1,13.39,[[10.14,10.53],[10.43,10.91],[10.81,11.2],[11.1,11.42],[11.32,11.71],[11.61,12.19],[12.09,12.73],[12.63,13.3]]],[13.6,15.81,[[13.56,13.81],[13.71,14.21],[14.11,14.42],[14.32,14.9],[14.8,15.36],[15.26,15.75]]],[15.93,18.3,[[15.97,16.23],[16.13,16.9],[16.8,17.31],[17.21,17.72],[17.62,18.24]]],[18.87,23.0,[[18.91,19.34],[19.24,19.41],[19.31,19.79],[19.69,20.03],[19.93,20.46],[20.36,20.67],[20.57,20.89],[20.79,21.5],[21.4,21.55],[21.45,21.84],[21.74,22.21],[22.11,22.61],[22.51,22.94]]],[23.35,25.18,[[23.39,23.69],[23.59,23.98],[23.88,24.25],[24.15,24.63],[24.53,25.12]]],[25.49,29.99,[[25.53,25.87],[25.77,26.31],[26.21,26.61],[26.51,26.93],[26.83,27.24],[27.14,27.67],[27.57,27.72],[27.62,28.25],[28.15,28.69],[28.59,29.25],[29.15,29.53],[29.43,29.93]]],[30.48,33.9,[[30.52,30.98],[30.88,31.23],[31.13,31.56],[31.46,31.89],[31.79,32.17],[32.07,32.4],[32.3,33.05],[32.95,33.27],[33.17,33.84]]],[34.42,37.94,[[34.46,34.72],[34.62,35.33],[35.23,35.74],[35.64,36.36],[36.26,36.85],[36.75,37.52],[37.42,37.88]]],[38.63,41.44,[[38.67,39.16],[39.06,39.33],[39.23,40.0],[39.9,40.47],[40.37,41.11],[41.01,41.38]]],[41.89,45.89,[[41.93,42.38],[42.28,42.66],[42.56,42.91],[42.81,43.4],[43.3,43.57],[43.47,43.79],[43.69,43.98],[43.88,44.31],[44.21,44.73],[44.63,44.98],[44.88,45.46],[45.36,45.83]]],[46.36,50.87,[[46.4,46.93],[46.83,47.01],[46.91,47.55],[47.45,47.73],[47.63,48.01],[47.91,48.29],[48.19,48.69],[48.59,49.03],[48.93,49.41],[49.31,49.6],[49.5,50.27],[50.17,50.81]]],[51.19,53.53,[[51.23,51.61],[51.51,51.77],[51.67,52.08],[51.98,52.53],[52.43,53.02],[52.92,53.07],[52.97,53.47]]],[54.13,56.89,[[54.17,54.68],[54.58,54.81],[54.71,55.19],[55.09,55.45],[55.35,55.8],[55.7,56.13],[56.03,56.41],[56.31,56.83]]],[57.17,59.04,[[57.21,57.78],[57.68,57.91],[57.81,58.32],[58.22,58.51],[58.41,58.56],[58.46,58.98]]],[59.4,64.55,[[59.44,59.89],[59.79,60.34],[60.24,60.89],[60.79,61.27],[61.17,61.71],[61.61,62.02],[61.92,62.43],[62.33,62.69],[62.59,62.93],[62.83,63.52],[63.42,63.85],[63.75,64.04],[63.94,64.49]]],[65.06,67.32,[[65.1,65.49],[65.39,65.84],[65.74,66.15],[66.05,66.46],[66.36,66.75],[66.65,67.26]]],[67.53,71.94,[[67.57,67.81],[67.71,68.57],[68.47,69.28],[69.18,69.72],[69.62,69.8],[69.7,70.1],[70.0,70.72],[70.62,70.79],[70.69,71.29],[71.19,71.88]]],[72.62,75.36,[[72.66,72.89],[72.79,73.26],[73.16,73.62],[73.52,74.08],[73.98,74.23],[74.13,74.39],[74.29,74.87],[74.77,75.3]]],[75.65,78.34,[[75.69,76.41],[76.31,76.58],[76.48,76.97],[76.87,77.16],[77.06,77.35],[77.25,77.87],[77.77,78.28]]],[78.63,81.56,[[78.67,79.02],[78.92,79.39],[79.29,79.81],[79.71,80.03],[79.93,80.31],[80.21,80.42],[80.32,80.99],[80.89,81.12],[81.02,81.5]]],[82.18,86.69,[[82.22,82.51],[82.41,82.86],[82.76,83.22],[83.12,84.11],[84.01,84.46],[84.36,84.87],[84.77,85.09],[84.99,85.28],[85.18,85.82],[85.72,86.05],[85.95,86.63]]],[87.04,89.61,[[87.08,87.51],[87.41,87.82],[87.72,87.98],[87.88,88.4],[88.3,88.65],[88.55,88.8],[88.7,88.97],[88.87,89.26],[89.16,89.55]]],[90.58,92.38,[[90.62,91.17],[91.07,91.45],[91.35,91.59],[91.49,92.32]]],[92.85,95.11,[[92.89,93.3],[93.2,93.98],[93.88,94.04],[93.94,94.61],[94.51,95.05]]],[95.96,98.38,[[96.0,96.24],[96.14,96.7],[96.6,96.87],[96.77,97.16],[97.06,97.6],[97.5,97.74],[97.64,98.15],[98.05,98.32]]],[98.94,102.98,[[98.98,99.7],[99.6,100.03],[99.93,100.21],[100.11,100.73],[100.63,101.09],[100.99,101.35],[101.25,101.41],[101.31,102.01],[101.91,102.36],[102.26,102.61],[102.51,102.92]]],[103.37,105.58,[[103.41,103.79],[103.69,104.36],[104.26,104.54],[104.44,104.89],[104.79,105.52]]],[106.01,109.39,[[106.05,106.33],[106.23,106.64],[106.54,106.89],[106.79,107.33],[107.23,107.39],[107.29,107.77],[107.67,108.16],[108.06,108.5],[108.4,108.72],[108.62,109.02],[108.92,109.33]]],[109.99,112.76,[[110.03,110.27],[110.17,110.6],[110.5,110.87],[110.77,111.11],[111.01,111.42],[111.32,111.83],[111.73,111.88],[111.78,112.26],[112.16,112.7]]],[113.18,117.03,[[113.22,113.68],[113.58,114.21],[114.11,114.45],[114.35,114.71],[114.61,115.33],[115.23,115.78],[115.68,116.5],[116.4,116.97]]],[117.45,120.68,[[117.49,117.9],[117.8,118.08],[117.98,118.36],[118.26,118.85],[118.75,119.06],[118.96,119.23],[119.13,119.66],[119.56,120.0],[119.9,120.62]]],[120.93,122.65,[[120.97,121.36],[121.26,121.55],[121.45,121.61],[121.51,121.86],[121.76,122.01],[121.91,122.3],[122.2,122.59]]],[122.98,124.53,[[123.02,123.4],[123.3,123.61],[123.51,123.96],[123.86,124.02],[123.92,124.36],[124.26,124.47]]],[124.87,127.29,[[124.91,125.3],[125.2,125.54],[125.44,125.59],[125.49,125.97],[125.87,126.28],[126.18,126.53],[126.43,126.79],[126.69,127.23]]],[127.83,135.03,[[127.87,128.63],[128.53,128.93],[128.83,129.02],[128.92,129.34],[129.24,129.62],[129.52,130.42],[130.32,130.96],[130.86,131.14],[131.04,131.81],[131.71,132.3],[132.2,132.43],[132.33,133.03],[132.93,133.34],[133.24,133.79],[133.69,134.02],[133.92,134.22],[134.12,134.76],[134.66,134.97]]],[135.62,137.34,[[135.66,135.89],[135.79,136.09],[135.99,136.44],[136.34,136.69],[136.59,136.88],[136.78,137.28]]],[137.92,142.77,[[137.96,138.37],[138.27,138.5],[138.4,139.15],[139.05,139.35],[139.25,139.74],[139.64,140.09],[139.99,140.6],[140.5,141.13],[141.03,141.43],[141.33,141.75],[141.65,142.27],[142.17,142.71]]],[143.1,145.21,[[143.14,143.71],[143.61,144.21],[144.11,144.71],[144.61,145.15]]],[145.85,147.03,[[145.89,146.15],[146.05,146.32],[146.22,146.61],[146.51,146.97]]]];
+// 重點單字（★）與一般單字解釋
+const KEY = new Set("teachers everyone favorite sound table tennis player joined team second grade missed laughed please soon sport practice feet hit sweat tired pick balls hard keep coach cheers teammates family together cheer each other easy lost game sad cry thought wiped tears deep breath told myself okay try losing learn stronger faster hero best won medal olympics strong never gives excited dream wearing uniform playing against world believe true champion even listening".split(" "));
+const DICT = {
+ "good":"好的","morning":"早上","good morning":"早安","teachers":"老師們（teacher 的複數）","and":"和、而且","everyone":"每個人、大家",
+ "my":"我的","name":"名字","is":"是","tom":"Tom（人名）",
+ "do":"助動詞，用來問問題","you":"你、你們","know":"知道","what":"什麼","favorite":"最喜歡的","sound":"聲音",
+ "ping":"乒（擬聲詞）","pong":"乓（擬聲詞）","that's":"= that is，那是","right":"對的、正確的","it's":"= it is，它是","the":"這個、那個（定冠詞）","of":"…的",
+ "table":"桌子","tennis":"網球；table tennis = 桌球","i":"我","am":"是","a":"一個","player":"選手、球員","love":"愛、非常喜歡","playing":"打（球）、玩",
+ "when":"當…的時候","was":"是（is / am 的過去式）","in":"在…裡面","second":"第二","grade":"年級；second grade = 二年級","joined":"加入了（join 的過去式）","school's":"學校的","team":"隊伍",
+ "had":"have 的過去式；had never = 以前從來沒有","never":"從來不、永不","played":"打過、玩過（play 的過去式）","before":"以前、之前",
+ "ball":"球","moved":"移動了（move 的過去式）","so":"如此、這麼","fast":"快的、快速地","missed":"沒打到、錯過（miss 的過去式）","it":"它","again":"再一次；again and again = 一次又一次",
+ "but":"但是","laughed":"笑了（laugh 的過去式）","said":"說了（say 的過去式）","one":"一","more":"更多；one more time = 再一次","time":"次、時間","please":"請、拜託",
+ "soon":"很快地、不久","became":"變成了（become 的過去式）","sport":"運動",
+ "now":"現在","practice":"練習","hard":"努力地；辛苦的","every":"每一","day":"天；every day = 每天",
+ "move":"移動","feet":"腳（foot 的複數）","hit":"打、擊","shirt":"襯衫、上衣","gets":"變得","wet":"濕的","with":"和、用","sweat":"汗水","legs":"腿（複數）","get":"變得","very":"非常","tired":"累的、疲倦的",
+ "pick":"撿；pick up = 撿起來","up":"向上","many":"很多","balls":"球（複數）","too":"也",
+ "work":"工作；hard work = 辛苦的事","keep":"持續；keep going = 繼續努力","going":"前進、進行","because":"因為","want":"想要","to":"去、到","better":"更好",
+ "coach":"教練","always":"總是","cheers":"鼓勵；cheer someone on = 為某人加油","me":"我（受詞）","on":"在…上","says":"說","jiayou":"加油！（中文發音）","can":"能夠、可以","do it":"做到",
+ "teammates":"隊友們","are":"是","like":"像…一樣","family":"家人、家庭","we":"我們","together":"一起","cheer":"加油、歡呼","for":"為了","each":"每個；each other = 互相","other":"其他的","laugh":"笑",
+ "not":"不","easy":"容易的","lost":"輸了（lose 的過去式）","big":"大的；重要的","game":"比賽",
+ "felt":"感覺（feel 的過去式）","sad":"難過的","wanted":"想要（want 的過去式）","cry":"哭",
+ "thought":"心想（think 的過去式）","practiced":"練習了（practice 的過去式）","why":"為什麼","did":"do 的過去式","still":"仍然、還是","lose":"輸",
+ "wiped":"擦（wipe 的過去式）","tears":"眼淚","took":"拿、做（take 的過去式）；took a deep breath = 深吸一口氣","deep":"深的","breath":"呼吸、一口氣",
+ "then":"然後","told":"告訴（tell 的過去式）","myself":"我自己","okay":"沒關係、好的","i'll":"= I will，我會","try":"嘗試",
+ "that":"（連接詞）","losing":"輸球、失敗","helps":"幫助","learn":"學習",
+ "get":"變得","little":"一點點","stronger":"更強壯（strong 的比較級）","faster":"更快（fast 的比較級）",
+ "hero":"偶像、英雄","lin":"林","yun-ju":"昀儒","he":"他","best":"最好的、最厲害的","players":"選手們","taiwan":"臺灣",
+ "won":"贏得（win 的過去式）","medal":"獎牌","at":"在","olympics":"奧運","strong":"強壯的","gives":"給；give up = 放棄",
+ "watch":"看","him":"他（受詞）","play":"打球、比賽","feel":"感覺","excited":"興奮的","be":"成為、是","just":"正好、就",
+ "have":"有","dream":"夢想；dream of = 夢想著","taiwan's":"臺灣的","wearing":"穿著（wear）","uniform":"制服、隊服","against":"對抗","world":"世界",
+ "won't":"= will not，不會","believe":"相信","true":"真正的","champion":"冠軍","even":"甚至；even after = 即使在…之後","after":"在…之後",
+ "small":"小的","boy":"男孩","thank":"謝謝","listening":"聆聽、聽"
+};
+const NOTE = {
+ "sweat":"注意發音：/swɛt/，像「死威特」，不是 sweet（甜的）",
+ "uniform":"重音在第一個音節：YOU-ni-form",
+ "champion":"重音在第一個音節：CHAM-pion",
+ "olympics":"重音在第二個音節：o-LYM-pics",
+ "tired":"一個音節，念「泰兒德」",
+ "laughed":"gh 念 f，ed 念 /t/：laft",
+ "wiped":"ed 念 /t/：wipt",
+ "missed":"ed 念 /t/：mist",
+ "practiced":"ed 念 /t/：PRAC-tist",
+ "excited":"ed 念 /ɪd/：ex-CI-ted",
+ "breath":"名詞「呼吸」，th 要咬舌",
+ "thought":"th 要咬舌：/θɔt/",
+ "coach":"念「口區」，和 couch（沙發）不同",
+ "jiayou":"直接用中文發音念「加油」",
+ "medal":"和 metal（金屬）發音很像",
+ "world":"捲舌，念 /wɝld/",
+ "won":"念起來和 one 一樣",
+ "feet":"foot 的複數，長音 /fit/"
+};
+
+// ---------- render ----------
+const box = document.getElementById("script");
+const LINES=[];let li=0;
+SCRIPT.forEach(p=>{
+  const div=document.createElement("div");div.className="para";
+  p.forEach(([en,zh,cue])=>{
+    const idx=li++, tim=TIMING[idx]; let wi=0;
+    const line=document.createElement("div");line.className="line";LINES.push(line);
+    const b=document.createElement("button");b.className="say";b.textContent="🔊";b.title="播放這一句";
+    b.onclick=()=>playSeg(tim[0],tim[1],speed,b);
+    const wrap=document.createElement("div");
+    const enEl=document.createElement("div");enEl.className="en";
+    en.split(/(\s+)/).forEach(tok=>{
+      if(/^\s+$/.test(tok)){enEl.append(tok);return;}
+      const m=tok.match(/^([^A-Za-z]*)([A-Za-z][A-Za-z'\-]*)([^A-Za-z]*)$/);
+      if(!m){enEl.append(tok);return;}
+      enEl.append(m[1]);
+      const s=document.createElement("span");s.className="w";s.textContent=m[2];
+      const key=m[2].toLowerCase();
+      if(KEY.has(key))s.classList.add("has");
+      const wIdx=wi++;
+      s.onclick=()=>showWord(m[2],s,TIMING[idx][2][wIdx]);
+      enEl.append(s);enEl.append(m[3]);
+    });
+    wrap.append(enEl);
+    const z=document.createElement("span");z.className="zh";z.textContent=zh;wrap.append(z);
+    if(cue){const c=document.createElement("span");c.className="cue";c.textContent="【"+cue+"】";wrap.append(c);}
+    line.append(b,wrap);div.append(line);
+  });
+  box.append(div);
+});
+
+// ---------- speech ----------
+const synth = window.speechSynthesis;
+let voice=null;
+function pickVoice(){
+  if(!synth)return;
+  const vs=synth.getVoices().filter(v=>/^en[-_]US/i.test(v.lang));
+  const pref=["Ana","Aria","Jenny","Samantha","Google US English","Natural"];
+  for(const p of pref){const v=vs.find(v=>v.name.includes(p));if(v){voice=v;return;}}
+  voice=vs[0]||synth.getVoices().find(v=>/^en/i.test(v.lang))||null;
+}
+if(synth){pickVoice();synth.onvoiceschanged=pickVoice;}
+else showWarn();
+if(/Line\/|FBAN|FBAV|Instagram|MicroMessenger/i.test(navigator.userAgent))showWarn();
+
+let speakingBtn=null;
+function speak(text,rate,btn){
+  if(!synth){showWarn();return;}
+  if(!voice)pickVoice();
+  const busy=synth.speaking||synth.pending;
+  if(busy)synth.cancel();
+  if(speakingBtn)speakingBtn.classList.remove("speaking");
+  const u=new SpeechSynthesisUtterance(text);
+  if(voice)u.voice=voice;
+  u.lang="en-US";u.rate=rate||0.9;u.volume=1;
+  let started=false;u.onstart=()=>{started=true;};
+  if(btn){btn.classList.add("speaking");speakingBtn=btn;u.onend=u.onerror=()=>btn.classList.remove("speaking");}
+  const go=()=>{try{synth.resume();synth.speak(u);}catch(e){showWarn();}};
+  // Safari/Chrome 在 cancel 後立刻 speak 會吞掉語音，稍等一下
+  busy?setTimeout(go,120):go();
+  setTimeout(()=>{if(!started&&!synth.speaking)showWarn();},2500);
+}
+function showWarn(){document.getElementById("warn").style.display="block";}
+
+// ---------- word popup ----------
+const pop=document.getElementById("pop");let cur="",curT=null,activeEl=null;
+function showWord(w,el,wt){
+  cur=w;curT=wt;
+  if(activeEl)activeEl.classList.remove("active");
+  activeEl=el;el.classList.add("active");
+  const k=w.toLowerCase();
+  document.getElementById("pword").textContent=w;
+  document.getElementById("pmean").textContent=DICT[k]||"（點 🔊 聽發音）";
+  document.getElementById("pnote").textContent=NOTE[k]?"💡 "+NOTE[k]:"";
+  pop.classList.add("show");
+  playWord(0.8);
+}
+function playWord(r){ if(cur.toLowerCase()==="jiayou"){ if(curT) playSeg(curT[0],curT[1],1); return; } if(segEnd!==null){a.pause();clearSeg();} speak(cur,r); }
+document.getElementById("pagain").onclick=()=>playWord(0.8);
+document.getElementById("pslow").onclick=()=>playWord(0.45);
+document.getElementById("pclose").onclick=()=>{pop.classList.remove("show");if(activeEl)activeEl.classList.remove("active");};
+
+// ---------- audio player ----------
+const a=document.getElementById("audio"),play=document.getElementById("play"),seek=document.getElementById("seek"),tm=document.getElementById("time");
+const fmt=s=>isFinite(s)?Math.floor(s/60)+":"+String(Math.floor(s%60)).padStart(2,"0"):"0:00";
+let speed=1, segEnd=null, segBtn=null, raf=0;
+function clearSeg(){ segEnd=null; cancelAnimationFrame(raf); if(segBtn){segBtn.classList.remove("speaking");segBtn=null;} a.playbackRate=speed; }
+let loopWait=false,isWord=false;
+function playSeg(s,e,r,btn){
+  isWord=!btn;
+  if(synth)synth.cancel();
+  clearSeg();
+  a.playbackRate=r; segEnd=e;
+  if(btn){btn.classList.add("speaking");segBtn=btn;}
+  const go=()=>{ a.currentTime=s; a.play().catch(()=>{});
+    const tick=()=>{ if(segEnd===null)return;
+      if(a.currentTime>=segEnd){ if(loopMode==="line"&&!isWord){ a.pause(); setTimeout(()=>{ if(segEnd===null)return; a.currentTime=s; a.play().catch(()=>{}); raf=requestAnimationFrame(tick); },700); return; } a.pause();clearSeg();return; }
+      if(a.paused&&!loopWait){clearSeg();return;} raf=requestAnimationFrame(tick); };
+    raf=requestAnimationFrame(tick); };
+  if(a.readyState>=1) go(); else { a.addEventListener("loadedmetadata",go,{once:true}); a.load(); }
+}
+play.onclick=()=>{ if(synth)synth.cancel(); if(segEnd!==null){clearSeg();a.pause();} if(a.paused){a.play().catch(()=>{});}else a.pause(); };
+a.onplay=()=>play.textContent="❚❚"; a.onpause=()=>play.textContent="▶";
+a.onended=()=>{ play.textContent="▶"; if(loopMode==="all"&&segEnd===null){ setTimeout(()=>{a.currentTime=0;a.play().catch(()=>{});},800); } };
+let loopMode="off", lockLine=-1;
+const loopBtn=document.getElementById("loop");
+const LOOPS={off:"🔁 關",all:"🔁 全文",line:"🔂 單句"};
+loopBtn.onclick=()=>{ loopMode=loopMode==="off"?"all":loopMode==="all"?"line":"off";
+  loopBtn.textContent=LOOPS[loopMode]; loopBtn.classList.toggle("on",loopMode!=="off");
+  lockLine = loopMode==="line" ? Math.max(0,curLine) : -1; };
+let jumping=false;
+function lineLoopCheck(){
+  if(loopMode!=="line"||segEnd!==null||a.paused||jumping)return;
+  if(lockLine<0)lockLine=Math.max(0,curLine);
+  const L=TIMING[lockLine];
+  if(a.currentTime>=L[1]||a.currentTime<L[0]-0.3){ jumping=true; a.pause();
+    setTimeout(()=>{ a.currentTime=L[0]; a.play().catch(()=>{}); setTimeout(()=>jumping=false,300); },700); }
+}
+setInterval(lineLoopCheck,80);
+let curLine=-1;
+a.ontimeupdate=()=>{ if(!seeking&&a.duration)seek.value=a.currentTime/a.duration*100; tm.textContent=fmt(a.currentTime)+" / "+fmt(a.duration);
+  if(segEnd===null){ const t=a.currentTime; let k=-1; for(let i=0;i<TIMING.length;i++){ if(t>=TIMING[i][0]-0.1) k=i; else break; } if(k>=0&&t>TIMING[k][1]+1.5&&k===TIMING.length-1) k=-1;
+    if(k!==curLine){ if(curLine>=0)LINES[curLine].classList.remove("now"); curLine=k;
+      if(k>=0){LINES[k].classList.add("now"); if(document.getElementById("tfollow").checked)LINES[k].scrollIntoView({block:"center",behavior:"smooth"});} } } };
+a.onloadedmetadata=a.ontimeupdate;
+let seeking=false;
+seek.oninput=()=>{seeking=true; if(a.duration){a.currentTime=seek.value/100*a.duration; if(loopMode==="line"){const t=a.currentTime;let k=0;for(let i=0;i<TIMING.length;i++){if(t>=TIMING[i][0]-0.1)k=i;else break;}lockLine=k;}} };
+seek.onchange=()=>seeking=false;
+document.getElementById("back5").onclick=()=>{a.currentTime=Math.max(0,a.currentTime-5); if(loopMode==="line"){const t=a.currentTime;let k=0;for(let i=0;i<TIMING.length;i++){if(t>=TIMING[i][0]-0.1)k=i;else break;}lockLine=k;}};
+document.querySelectorAll("#speeds button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("#speeds button").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on");speed=+b.dataset.r;a.playbackRate=speed;a.preservesPitch=true;
+});
+// ---------- 校正模式 ----------
+const ORIG=JSON.parse(JSON.stringify(TIMING));
+function applyStarts(st,end){ // st: 每句開始時間；end: 最後一句結束
+  for(let i=0;i<TIMING.length;i++){
+    const s=st[i], e=(i+1<st.length?st[i+1]:end)-0.05;
+    const o=ORIG[i], os=o[0], oe=o[1], sc=(e-s)/Math.max(0.1,oe-os);
+    TIMING[i][0]=Math.max(0,s-0.05); TIMING[i][1]=e+0.1;
+    TIMING[i][2]=o[2].map(([a,b])=>[+(s+(a-os)*sc).toFixed(2),+(s+(b-os)*sc).toFixed(2)]);
+  }
+}
+try{const sv=JSON.parse(localStorage.getItem("ttd_cal")||"null"); if(sv&&sv.st&&sv.st.length===TIMING.length)applyStarts(sv.st,sv.end);}catch(e){}
+const cal=document.getElementById("cal"),calMsg=document.getElementById("calMsg"),calNext=document.getElementById("calNext");
+let marks=[];
+function calShow(){
+  const n=marks.length;
+  if(n<SCRIPT.flat().length){ calMsg.textContent=`第 ${n+1} / ${TIMING.length} 句：聽到這句「一開口」就按`; calNext.textContent=SCRIPT.flat()[n][0]; document.getElementById("calTap").textContent="👆 這句開始了！"; }
+  else { calMsg.textContent="最後一句念完時按一下"; calNext.textContent="（Thank you for listening! 結束）"; document.getElementById("calTap").textContent="✅ 全部念完了"; }
+}
+document.getElementById("calStart").onclick=()=>{
+  marks=[]; clearSeg(); speedReset(); a.currentTime=0; a.play().catch(()=>{});
+  cal.style.display="block"; document.getElementById("calOut").style.display="none"; document.getElementById("calCopy").style.display="none"; document.getElementById("calTap").style.display="";
+  calShow();
+};
+function speedReset(){ /* 校正用目前速度即可，時間點以錄音時間記錄 */ }
+document.getElementById("calTap").onclick=()=>{
+  const t=+(a.currentTime-0.25).toFixed(2); // 扣掉反應時間
+  if(marks.length<TIMING.length){ marks.push(Math.max(0,t)); calShow(); return; }
+  const end=+(a.currentTime).toFixed(2); a.pause();
+  applyStarts(marks,end);
+  try{localStorage.setItem("ttd_cal",JSON.stringify({st:marks,end}));}catch(e){}
+  calMsg.textContent="✅ 校正完成！已套用在這台裝置。若要讓其他裝置也準，請把下面資料複製貼給 Claude。";
+  calNext.textContent=""; document.getElementById("calTap").style.display="none";
+  const out=document.getElementById("calOut"); out.value="CAL:"+JSON.stringify({st:marks,end}); out.style.display="inline-block";
+  document.getElementById("calCopy").style.display="inline-block";
+};
+document.getElementById("calUndo").onclick=()=>{ if(marks.length){ marks.pop(); const back=marks.length?marks[marks.length-1]:0; a.currentTime=Math.max(0,back-0.5); a.play().catch(()=>{}); calShow(); } };
+document.getElementById("calCancel").onclick=()=>{ a.pause(); cal.style.display="none"; };
+document.getElementById("calReset").onclick=()=>{ for(let i=0;i<TIMING.length;i++){TIMING[i][0]=ORIG[i][0];TIMING[i][1]=ORIG[i][1];TIMING[i][2]=JSON.parse(JSON.stringify(ORIG[i][2]));} try{localStorage.removeItem("ttd_cal");}catch(e){} a.pause(); cal.style.display="none"; };
+document.getElementById("calCopy").onclick=()=>{ const o=document.getElementById("calOut"); o.select(); navigator.clipboard&&navigator.clipboard.writeText(o.value).catch(()=>{}); document.getElementById("calCopy").textContent="✅ 已複製（也可以手動長按全選）"; };
+document.getElementById("gear").onclick=()=>document.getElementById("settings").classList.toggle("open");
+document.getElementById("tzh").onchange=e=>document.body.classList.toggle("nozh",!e.target.checked);
+document.getElementById("tcue").onchange=e=>document.body.classList.toggle("nocue",!e.target.checked);
+</script>
+</body>
+</html>
