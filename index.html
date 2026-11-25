@@ -77,6 +77,28 @@ body.nocue .cue{display:none}
   .cue{font-size:.78rem}
 }
 .loopbtn{padding:5px 10px;background:#f3efe7;font-size:.82rem;font-weight:700;white-space:nowrap}.loopbtn.on{background:#2e86ab;color:#fff}
+
+.end{font-weight:800;border-radius:4px;padding:0 1px}
+.e-t{color:#1f6fd1;background:#e3efff}.e-d{color:#1d8a4a;background:#e2f6ea}.e-id{color:#d4590b;background:#ffecdc}
+.e-s{color:#8a3ffc;background:#f0e8ff}.e-z{color:#c2185b;background:#fde4ee}
+.legend{margin-top:5px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.legend .end{font-size:.8rem;padding:1px 6px}
+body.noend .legend{display:none}
+.w.masked{color:#b9b2a5;letter-spacing:1px}
+.w.revealed{background:#fff1c9}
+.masks{display:flex;gap:4px}
+.masks button{padding:5px 10px;background:#f3efe7;font-size:.82rem;font-weight:700}
+.masks button.on{background:#7b5cd6;color:#fff}
+@media (max-width:600px){.masks button{padding:4px 8px;font-size:.78rem}}
+.sels{display:flex;gap:6px}
+.sel{display:inline-flex;align-items:center;gap:2px;background:#f3efe7;border-radius:999px;padding:0 4px 0 9px;font-size:.9rem}
+.sel select{border:0;background:transparent;font:inherit;font-weight:700;color:var(--ink);padding:6px 4px;outline:none}
+@media (max-width:600px){
+ .tip{padding:6px 9px}
+ .tip .tiptext{display:none}
+ .legend{margin-top:0;gap:4px;font-size:.75rem}
+ .legend .end{font-size:.72rem;padding:0 4px}
+}
 </style>
 </head>
 <body>
@@ -93,22 +115,26 @@ body.nocue .cue{display:none}
     <span class="time" id="time">0:00 / 0:00</span>
   </div>
   <div class="row r2">
-    <span class="speeds" id="speeds">
-      <button data-r="0.6">0.6×</button><button data-r="0.75">0.75×</button><button data-r="0.9">0.9×</button><button data-r="1" class="on">1×</button><button data-r="1.15">1.15×</button>
+    <span class="sels">
+      <label class="sel">🐢<select id="speedSel"><option value="0.6">0.6×</option><option value="0.75">0.75×</option><option value="0.9">0.9×</option><option value="1" selected>1×</option><option value="1.15">1.15×</option></select></label>
+      <label class="sel">🙈<select id="maskSel"><option value="0" selected>不遮</option><option value="1">遮一半</option><option value="2">首字母</option><option value="3">全遮</option></select></label>
     </span>
     <span style="display:flex;gap:6px"><button id="loop" class="loopbtn">🔁 關</button><button id="gear" class="ic" aria-label="設定">⚙️</button></span>
   </div>
+
   <div class="row toggles" id="settings">
     <label><input type="checkbox" id="tzh" checked> 中文</label>
     <label><input type="checkbox" id="tcue" checked> 動作</label>
     <label><input type="checkbox" id="tfollow" checked> 自動捲動</label>
+    <label><input type="checkbox" id="tend" checked> 結尾標色</label>
     <button id="calStart" class="pill">🎯 校正</button>
   </div>
 </div>
 
 <main>
   <div class="warn" id="warn">🔇 單字沒有聲音嗎？① 如果是從 LINE、FB 等 App 點開，請點右上角選「用 Safari / Chrome 開啟」。② iPhone / iPad 請關掉側邊靜音鍵、調大音量。③ 先按一次上方 ▶ 播放錄音，再點單字試試。</div>
-  <div class="tip">👆 <b>點任何單字</b>：聽發音＋看中文。<b>點 🔊</b>：念整句。有黃色虛線的是重點單字。</div>
+  <div class="tip"><span class="tiptext">👆 <b>點單字</b>聽發音＋看中文，<b>點 🔊</b> 念整句。遮住的字點一下就會出現。</span>
+    <div class="legend" id="legend">結尾：<b class="end e-t">-ed /t/</b> <b class="end e-d">-ed /d/</b> <b class="end e-id">-ed /ɪd/</b> <b class="end e-s">-s /s/</b> <b class="end e-z">-s /z/</b></div></div>
   <div id="script"></div>
 </main>
 
@@ -158,7 +184,7 @@ const SCRIPT = [
   ["I pick up so many balls, too!","而且，我還要撿好多好多球呢！"],
   ["It is hard work, but I keep going.","雖然練球很辛苦，但我還是堅持下去。"],
   ["Because I want to get better!","因為我想變得更厲害！"]],
- [["My coach always cheers me on and says, \"Jiayou! You can do it!\"","教練總是鼓勵我說：「加油！你可以的！」"],
+ [["My coach always cheers me on and says, \"Come on! You can do it!\"","教練總是鼓勵我說：「加油！你可以的！」"],
   ["My teammates are like my family.","隊友們就像我的家人一樣。"],
   ["We practice together, cheer for each other, and laugh together.","我們一起練習、互相加油，也一起開心歡笑。"]],
  [["But playing table tennis is not always easy.","但是，打桌球並不總是那麼容易。","語氣：從這裡開始放慢"],
@@ -185,7 +211,7 @@ const SCRIPT = [
   ["Thank you for listening!","謝謝大家！"]]
 ];
 
-const TIMING=[[0.36,2.22,[[0.4,0.59],[0.49,1.0],[0.9,1.27],[1.17,1.43],[1.33,2.13]]],[2.46,3.63,[[2.5,2.78],[2.68,3.15],[3.05,3.25],[3.15,3.54]]],[4.19,6.39,[[4.23,4.52],[4.42,4.77],[4.67,4.99],[4.89,5.12],[5.02,5.17],[5.07,5.95],[5.85,6.19],[6.09,6.3]]],[6.64,9.75,[[6.67,7.24],[7.39,8.1],[8.23,8.86],[9.01,9.65]]],[10.1,13.39,[[10.14,10.53],[10.43,10.91],[10.81,11.2],[11.1,11.42],[11.32,11.71],[11.61,12.19],[12.09,12.73],[12.63,13.3]]],[13.6,15.81,[[13.56,13.81],[13.71,14.21],[14.11,14.42],[14.32,14.9],[14.8,15.36],[15.26,15.75]]],[15.93,18.3,[[15.97,16.23],[16.13,16.9],[16.8,17.31],[17.21,17.72],[17.62,18.24]]],[18.87,23.0,[[18.91,19.34],[19.24,19.41],[19.31,19.79],[19.69,20.03],[19.93,20.46],[20.36,20.67],[20.57,20.89],[20.79,21.5],[21.4,21.55],[21.45,21.84],[21.74,22.21],[22.11,22.61],[22.51,22.94]]],[23.35,25.18,[[23.39,23.69],[23.59,23.98],[23.88,24.25],[24.15,24.63],[24.53,25.12]]],[25.49,29.99,[[25.53,25.87],[25.77,26.31],[26.21,26.61],[26.51,26.93],[26.83,27.24],[27.14,27.67],[27.57,27.72],[27.62,28.25],[28.15,28.69],[28.59,29.25],[29.15,29.53],[29.43,29.93]]],[30.48,33.9,[[30.52,30.98],[30.88,31.23],[31.13,31.56],[31.46,31.89],[31.79,32.17],[32.07,32.4],[32.3,33.05],[32.95,33.27],[33.17,33.84]]],[34.42,37.94,[[34.46,34.72],[34.62,35.33],[35.23,35.74],[35.64,36.36],[36.26,36.85],[36.75,37.52],[37.42,37.88]]],[38.63,41.44,[[38.67,39.16],[39.06,39.33],[39.23,40.0],[39.9,40.47],[40.37,41.11],[41.01,41.38]]],[41.89,45.89,[[41.93,42.38],[42.28,42.66],[42.56,42.91],[42.81,43.4],[43.3,43.57],[43.47,43.79],[43.69,43.98],[43.88,44.31],[44.21,44.73],[44.63,44.98],[44.88,45.46],[45.36,45.83]]],[46.36,50.87,[[46.4,46.93],[46.83,47.01],[46.91,47.55],[47.45,47.73],[47.63,48.01],[47.91,48.29],[48.19,48.69],[48.59,49.03],[48.93,49.41],[49.31,49.6],[49.5,50.27],[50.17,50.81]]],[51.19,53.53,[[51.23,51.61],[51.51,51.77],[51.67,52.08],[51.98,52.53],[52.43,53.02],[52.92,53.07],[52.97,53.47]]],[54.13,56.89,[[54.17,54.68],[54.58,54.81],[54.71,55.19],[55.09,55.45],[55.35,55.8],[55.7,56.13],[56.03,56.41],[56.31,56.83]]],[57.17,59.04,[[57.21,57.78],[57.68,57.91],[57.81,58.32],[58.22,58.51],[58.41,58.56],[58.46,58.98]]],[59.4,64.55,[[59.44,59.89],[59.79,60.34],[60.24,60.89],[60.79,61.27],[61.17,61.71],[61.61,62.02],[61.92,62.43],[62.33,62.69],[62.59,62.93],[62.83,63.52],[63.42,63.85],[63.75,64.04],[63.94,64.49]]],[65.06,67.32,[[65.1,65.49],[65.39,65.84],[65.74,66.15],[66.05,66.46],[66.36,66.75],[66.65,67.26]]],[67.53,71.94,[[67.57,67.81],[67.71,68.57],[68.47,69.28],[69.18,69.72],[69.62,69.8],[69.7,70.1],[70.0,70.72],[70.62,70.79],[70.69,71.29],[71.19,71.88]]],[72.62,75.36,[[72.66,72.89],[72.79,73.26],[73.16,73.62],[73.52,74.08],[73.98,74.23],[74.13,74.39],[74.29,74.87],[74.77,75.3]]],[75.65,78.34,[[75.69,76.41],[76.31,76.58],[76.48,76.97],[76.87,77.16],[77.06,77.35],[77.25,77.87],[77.77,78.28]]],[78.63,81.56,[[78.67,79.02],[78.92,79.39],[79.29,79.81],[79.71,80.03],[79.93,80.31],[80.21,80.42],[80.32,80.99],[80.89,81.12],[81.02,81.5]]],[82.18,86.69,[[82.22,82.51],[82.41,82.86],[82.76,83.22],[83.12,84.11],[84.01,84.46],[84.36,84.87],[84.77,85.09],[84.99,85.28],[85.18,85.82],[85.72,86.05],[85.95,86.63]]],[87.04,89.61,[[87.08,87.51],[87.41,87.82],[87.72,87.98],[87.88,88.4],[88.3,88.65],[88.55,88.8],[88.7,88.97],[88.87,89.26],[89.16,89.55]]],[90.58,92.38,[[90.62,91.17],[91.07,91.45],[91.35,91.59],[91.49,92.32]]],[92.85,95.11,[[92.89,93.3],[93.2,93.98],[93.88,94.04],[93.94,94.61],[94.51,95.05]]],[95.96,98.38,[[96.0,96.24],[96.14,96.7],[96.6,96.87],[96.77,97.16],[97.06,97.6],[97.5,97.74],[97.64,98.15],[98.05,98.32]]],[98.94,102.98,[[98.98,99.7],[99.6,100.03],[99.93,100.21],[100.11,100.73],[100.63,101.09],[100.99,101.35],[101.25,101.41],[101.31,102.01],[101.91,102.36],[102.26,102.61],[102.51,102.92]]],[103.37,105.58,[[103.41,103.79],[103.69,104.36],[104.26,104.54],[104.44,104.89],[104.79,105.52]]],[106.01,109.39,[[106.05,106.33],[106.23,106.64],[106.54,106.89],[106.79,107.33],[107.23,107.39],[107.29,107.77],[107.67,108.16],[108.06,108.5],[108.4,108.72],[108.62,109.02],[108.92,109.33]]],[109.99,112.76,[[110.03,110.27],[110.17,110.6],[110.5,110.87],[110.77,111.11],[111.01,111.42],[111.32,111.83],[111.73,111.88],[111.78,112.26],[112.16,112.7]]],[113.18,117.03,[[113.22,113.68],[113.58,114.21],[114.11,114.45],[114.35,114.71],[114.61,115.33],[115.23,115.78],[115.68,116.5],[116.4,116.97]]],[117.45,120.68,[[117.49,117.9],[117.8,118.08],[117.98,118.36],[118.26,118.85],[118.75,119.06],[118.96,119.23],[119.13,119.66],[119.56,120.0],[119.9,120.62]]],[120.93,122.65,[[120.97,121.36],[121.26,121.55],[121.45,121.61],[121.51,121.86],[121.76,122.01],[121.91,122.3],[122.2,122.59]]],[122.98,124.53,[[123.02,123.4],[123.3,123.61],[123.51,123.96],[123.86,124.02],[123.92,124.36],[124.26,124.47]]],[124.87,127.29,[[124.91,125.3],[125.2,125.54],[125.44,125.59],[125.49,125.97],[125.87,126.28],[126.18,126.53],[126.43,126.79],[126.69,127.23]]],[127.83,135.03,[[127.87,128.63],[128.53,128.93],[128.83,129.02],[128.92,129.34],[129.24,129.62],[129.52,130.42],[130.32,130.96],[130.86,131.14],[131.04,131.81],[131.71,132.3],[132.2,132.43],[132.33,133.03],[132.93,133.34],[133.24,133.79],[133.69,134.02],[133.92,134.22],[134.12,134.76],[134.66,134.97]]],[135.62,137.34,[[135.66,135.89],[135.79,136.09],[135.99,136.44],[136.34,136.69],[136.59,136.88],[136.78,137.28]]],[137.92,142.77,[[137.96,138.37],[138.27,138.5],[138.4,139.15],[139.05,139.35],[139.25,139.74],[139.64,140.09],[139.99,140.6],[140.5,141.13],[141.03,141.43],[141.33,141.75],[141.65,142.27],[142.17,142.71]]],[143.1,145.21,[[143.14,143.71],[143.61,144.21],[144.11,144.71],[144.61,145.15]]],[145.85,147.03,[[145.89,146.15],[146.05,146.32],[146.22,146.61],[146.51,146.97]]]];
+const TIMING=[[0.32,2.3,[[0.36,0.55],[0.45,1.06],[0.96,1.26],[1.16,1.53],[1.43,2.24]]],[2.41,3.67,[[2.45,2.68],[2.58,3.08],[2.98,3.47],[3.37,3.61]]],[4.01,6.23,[[4.05,4.44],[4.34,4.52],[4.42,4.83],[4.73,4.92],[4.82,5.17],[5.07,5.66],[5.56,6.06],[5.96,6.17]]],[6.39,8.14,[[6.43,6.81],[6.71,7.37],[7.27,7.68],[7.58,8.08]]],[8.51,11.92,[[8.55,8.93],[8.83,9.32],[9.22,9.61],[9.51,9.89],[9.79,10.26],[10.16,10.72],[10.62,11.29],[11.19,11.86]]],[12.2,14.36,[[12.24,12.59],[12.49,12.84],[12.74,13.01],[12.91,13.46],[13.36,13.94],[13.84,14.3]]],[14.44,16.9,[[14.48,14.76],[14.66,15.55],[15.45,15.64],[15.54,16.33],[16.23,16.84]]],[17.53,21.89,[[17.57,18.02],[17.92,18.2],[18.1,18.43],[18.33,18.67],[18.57,19.1],[19.0,19.44],[19.34,19.66],[19.56,20.32],[20.22,20.57],[20.47,20.7],[20.6,21.11],[21.01,21.52],[21.42,21.83]]],[22.16,24.01,[[22.2,22.55],[22.45,22.71],[22.61,23.09],[22.99,23.47],[23.37,23.95]]],[24.43,28.87,[[24.47,24.72],[24.62,25.24],[25.14,25.62],[25.52,26.01],[25.91,26.16],[26.06,26.51],[26.41,26.83],[26.73,27.36],[27.26,27.41],[27.31,28.0],[27.9,28.4],[28.3,28.81]]],[29.25,32.77,[[29.29,29.75],[29.65,30.01],[29.91,30.31],[30.21,30.62],[30.52,30.93],[30.83,31.45],[31.35,31.9],[31.8,32.15],[32.05,32.71]]],[33.28,36.67,[[33.32,33.57],[33.47,34.05],[33.95,34.54],[34.44,35.1],[35.0,35.61],[35.51,36.28],[36.18,36.61]]],[37.02,39.98,[[37.06,37.58],[37.48,37.71],[37.61,38.59],[38.49,38.92],[38.82,39.61],[39.51,39.92]]],[40.29,44.0,[[40.33,40.78],[40.68,41.06],[40.96,41.25],[41.15,41.69],[41.59,41.95],[41.85,42.18],[42.08,42.35],[42.25,42.53],[42.43,42.93],[42.83,43.17],[43.07,43.6],[43.5,43.94]]],[44.38,48.89,[[44.42,44.95],[44.85,45.03],[44.93,45.57],[45.47,45.71],[45.61,45.98],[45.88,46.34],[46.24,46.65],[46.55,47.17],[47.07,47.37],[47.27,47.62],[47.52,48.32],[48.22,48.83]]],[49.18,51.48,[[49.22,49.58],[49.48,49.74],[49.64,50.07],[49.97,50.49],[50.39,50.98],[50.88,51.1],[51.0,51.42]]],[52.01,54.61,[[52.05,52.55],[52.45,52.82],[52.72,53.14],[53.04,53.38],[53.28,53.54],[53.44,53.84],[53.74,54.13],[54.03,54.55]]],[55.2,56.89,[[55.24,55.68],[55.58,55.98],[55.88,56.18],[56.08,56.39],[56.29,56.61],[56.51,56.83]]],[57.41,61.88,[[57.45,57.72],[57.62,58.12],[58.02,58.57],[58.47,58.96],[58.86,59.21],[59.11,59.5],[59.4,59.67],[59.57,60.04],[59.94,60.5],[60.4,60.81],[60.71,61.1],[61.0,61.16],[61.06,61.49],[61.39,61.82]]],[62.35,64.28,[[62.39,62.66],[62.56,63.11],[63.01,63.45],[63.35,63.74],[63.64,63.8],[63.7,64.22]]],[64.57,69.03,[[64.61,64.98],[64.88,65.56],[65.46,66.28],[66.18,66.78],[66.68,66.85],[66.75,67.17],[67.07,67.81],[67.71,67.86],[67.76,68.36],[68.26,68.97]]],[69.58,72.37,[[69.62,69.85],[69.75,70.25],[70.15,70.64],[70.54,71.08],[70.98,71.21],[71.11,71.5],[71.4,71.89],[71.79,72.31]]],[72.46,75.16,[[72.5,73.05],[72.95,73.52],[73.42,73.7],[73.6,74.1],[74.0,74.23],[74.13,74.67],[74.57,75.1]]],[75.5,78.76,[[75.54,75.8],[75.7,76.18],[76.08,76.74],[76.64,77.1],[77.0,77.35],[77.25,77.49],[77.39,78.16],[78.06,78.32],[78.22,78.7]]],[79.18,83.85,[[79.22,79.75],[79.65,80.03],[79.93,80.36],[80.26,81.11],[81.01,81.45],[81.35,81.97],[81.87,82.29],[82.19,82.39],[82.29,82.96],[82.86,83.22],[83.12,83.79]]],[84.0,87.03,[[84.04,84.52],[84.42,84.86],[84.76,85.33],[85.23,85.62],[85.52,85.7],[85.6,86.07],[85.97,86.32],[86.22,86.66],[86.56,86.97]]],[87.95,89.77,[[87.99,88.54],[88.44,88.67],[88.57,89.0],[88.9,89.71]]],[90.53,92.83,[[90.57,90.92],[90.82,91.66],[91.56,91.75],[91.65,92.32],[92.22,92.77]]],[93.64,96.23,[[93.68,93.93],[93.83,94.22],[94.12,94.64],[94.54,94.97],[94.87,95.41],[95.31,95.56],[95.46,95.95],[95.85,96.17]]],[96.83,100.93,[[96.87,97.65],[97.55,97.97],[97.87,98.17],[98.07,98.71],[98.61,99.02],[98.92,99.32],[99.22,99.49],[99.39,99.86],[99.76,100.31],[100.21,100.53],[100.43,100.87]]],[101.1,103.77,[[101.14,101.52],[101.42,102.31],[102.21,102.52],[102.42,103.0],[102.9,103.71]]],[104.22,107.68,[[104.26,104.63],[104.53,104.86],[104.76,105.16],[105.06,105.44],[105.34,105.61],[105.51,106.02],[105.92,106.4],[106.3,106.81],[106.71,107.0],[106.9,107.09],[106.99,107.62]]],[108.34,111.42,[[108.38,108.63],[108.53,109.05],[108.95,109.25],[109.15,109.65],[109.55,109.8],[109.7,110.37],[110.27,110.48],[110.38,110.68],[110.58,111.36]]],[111.76,115.67,[[111.8,112.3],[112.2,112.71],[112.61,113.07],[112.97,113.4],[113.3,113.97],[113.87,114.43],[114.33,115.16],[115.06,115.61]]],[116.17,119.29,[[116.21,116.59],[116.49,116.78],[116.68,117.18],[117.08,117.52],[117.42,117.66],[117.56,117.89],[117.79,118.29],[118.19,118.43],[118.33,119.23]]],[119.57,121.38,[[119.61,120.01],[119.91,120.22],[120.12,120.27],[120.17,120.61],[120.51,120.72],[120.62,121.05],[120.95,121.32]]],[121.68,123.29,[[121.72,122.09],[121.99,122.33],[122.23,122.7],[122.6,122.8],[122.7,123.11],[123.01,123.23]]],[123.5,125.98,[[123.54,123.96],[123.86,124.18],[124.08,124.23],[124.13,124.55],[124.45,124.91],[124.81,125.21],[125.11,125.63],[125.53,125.92]]],[126.5,134.02,[[126.54,127.33],[127.23,127.42],[127.32,127.77],[127.67,128.06],[127.96,128.43],[128.33,129.13],[129.03,129.74],[129.64,129.86],[129.76,130.85],[130.75,131.07],[130.97,131.31],[131.21,131.9],[131.8,132.27],[132.17,132.74],[132.64,132.86],[132.76,133.2],[133.1,133.75],[133.65,133.96]]],[134.52,135.91,[[134.56,134.73],[134.63,135.05],[134.95,135.27],[135.17,135.32],[135.22,135.43],[135.33,135.85]]],[136.55,140.99,[[136.59,136.97],[136.87,137.22],[137.12,137.76],[137.66,137.9],[137.8,138.12],[138.02,138.68],[138.58,139.03],[138.93,139.49],[139.39,139.61],[139.51,140.21],[140.11,140.62],[140.52,140.93]]],[141.39,142.49,[[141.43,141.69],[141.59,142.01],[141.91,142.3],[142.2,142.43]]],[142.68,145.16,[[142.72,143.09],[142.99,143.66],[143.56,143.97],[143.87,145.1]]]];
 // 重點單字（★）與一般單字解釋
 const KEY = new Set("teachers everyone favorite sound table tennis player joined team second grade missed laughed please soon sport practice feet hit sweat tired pick balls hard keep coach cheers teammates family together cheer each other easy lost game sad cry thought wiped tears deep breath told myself okay try losing learn stronger faster hero best won medal olympics strong never gives excited dream wearing uniform playing against world believe true champion even listening".split(" "));
 const DICT = {
@@ -203,7 +229,7 @@ const DICT = {
  "move":"移動","feet":"腳（foot 的複數）","hit":"打、擊","shirt":"襯衫、上衣","gets":"變得","wet":"濕的","with":"和、用","sweat":"汗水","legs":"腿（複數）","get":"變得","very":"非常","tired":"累的、疲倦的",
  "pick":"撿；pick up = 撿起來","up":"向上","many":"很多","balls":"球（複數）","too":"也",
  "work":"工作；hard work = 辛苦的事","keep":"持續；keep going = 繼續努力","going":"前進、進行","because":"因為","want":"想要","to":"去、到","better":"更好",
- "coach":"教練","always":"總是","cheers":"鼓勵；cheer someone on = 為某人加油","me":"我（受詞）","on":"在…上","says":"說","jiayou":"加油！（中文發音）","can":"能夠、可以","do it":"做到",
+ "coach":"教練","always":"總是","cheers":"鼓勵；cheer someone on = 為某人加油","me":"我（受詞）","on":"在…上","says":"說","come on":"加油！","come":"來；Come on! = 加油！","can":"能夠、可以","do it":"做到",
  "teammates":"隊友們","are":"是","like":"像…一樣","family":"家人、家庭","we":"我們","together":"一起","cheer":"加油、歡呼","for":"為了","each":"每個；each other = 互相","other":"其他的","laugh":"笑",
  "not":"不","easy":"容易的","lost":"輸了（lose 的過去式）","big":"大的；重要的","game":"比賽",
  "felt":"感覺（feel 的過去式）","sad":"難過的","wanted":"想要（want 的過去式）","cry":"哭",
@@ -240,6 +266,40 @@ const NOTE = {
  "feet":"foot 的複數，長音 /fit/"
 };
 
+
+// -ed / -s 結尾：[念法, 結尾字母數]
+const END={
+ "joined":["d",2],"played":["d",2],"moved":["d",1],"tired":["d",1],
+ "missed":["t",2],"laughed":["t",2],"practiced":["t",1],"wiped":["t",1],
+ "wanted":["id",2],"excited":["id",2],
+ "gets":["s",1],"helps":["s",1],"teammates":["s",1],"olympics":["s",1],"it's":["s",2],"that's":["s",2],
+ "teachers":["z",1],"legs":["z",1],"balls":["z",1],"tears":["z",1],"cheers":["z",1],"players":["z",1],"gives":["z",1],"says":["z",1],"school's":["z",2],"taiwan's":["z",2]
+};
+const ENDTXT={t:"結尾念 /t/：輕輕的「特」，不要念成「得」",d:"結尾念 /d/：輕輕的「得」",id:"結尾念 /ɪd/：多一拍「依得」",s:"結尾念 /s/：嘶～（不震動）",z:"結尾念 /z/：滋～（喉嚨會震動）"};
+let maskLevel=0;
+function hashW(a,b){return ((a*31+b*17)%10);}
+function drawWord(s){
+  const full=s.dataset.full, k=full.toLowerCase(), e=END[k];
+  const lv=maskLevel, revealed=s.classList.contains("revealed");
+  s.innerHTML="";
+  let hide = lv===3 || (lv===2) || (lv===1 && s.dataset.h<5);
+  if(revealed) hide=false;
+  if(hide){
+    const n=full.replace(/[^A-Za-z]/g,"").length;
+    const first = lv===2 ? full[0] : "";
+    s.classList.add("masked");
+    s.textContent = first + "＿".repeat(Math.max(1,Math.ceil((n-(first?1:0))*0.6)));
+    if(e && showEnd){ const b=document.createElement("b"); b.className="end e-"+e[0]; b.textContent=" ●"; s.append(b);}  
+    return;
+  }
+  s.classList.remove("masked");
+  if(e && showEnd){
+    s.append(full.slice(0,full.length-e[1]));
+    const b=document.createElement("b");b.className="end e-"+e[0];b.textContent=full.slice(-e[1]);s.append(b);
+  } else s.textContent=full;
+}
+let showEnd=true;
+function redrawAll(){document.querySelectorAll(".w").forEach(drawWord);}
 // ---------- render ----------
 const box = document.getElementById("script");
 const LINES=[];let li=0;
@@ -257,11 +317,12 @@ SCRIPT.forEach(p=>{
       const m=tok.match(/^([^A-Za-z]*)([A-Za-z][A-Za-z'\-]*)([^A-Za-z]*)$/);
       if(!m){enEl.append(tok);return;}
       enEl.append(m[1]);
-      const s=document.createElement("span");s.className="w";s.textContent=m[2];
+      const s=document.createElement("span");s.className="w";s.dataset.full=m[2];s.dataset.h=hashW(idx,wi);
       const key=m[2].toLowerCase();
       if(KEY.has(key))s.classList.add("has");
       const wIdx=wi++;
       s.onclick=()=>showWord(m[2],s,TIMING[idx][2][wIdx]);
+      drawWord(s); if(END[key])s.classList.add("has");
       enEl.append(s);enEl.append(m[3]);
     });
     wrap.append(enEl);
@@ -314,7 +375,9 @@ function showWord(w,el,wt){
   const k=w.toLowerCase();
   document.getElementById("pword").textContent=w;
   document.getElementById("pmean").textContent=DICT[k]||"（點 🔊 聽發音）";
-  document.getElementById("pnote").textContent=NOTE[k]?"💡 "+NOTE[k]:"";
+  const notes=[]; if(END[k])notes.push("🎨 "+ENDTXT[END[k][0]]); if(NOTE[k])notes.push("💡 "+NOTE[k]);
+  document.getElementById("pnote").innerHTML=notes.map(x=>x.replace(/[<>&]/g,"")).join("<br>");
+  if(el.classList.contains("masked")){ el.classList.add("revealed"); drawWord(el); }
   pop.classList.add("show");
   playWord(0.8);
 }
@@ -370,10 +433,7 @@ let seeking=false;
 seek.oninput=()=>{seeking=true; if(a.duration){a.currentTime=seek.value/100*a.duration; if(loopMode==="line"){const t=a.currentTime;let k=0;for(let i=0;i<TIMING.length;i++){if(t>=TIMING[i][0]-0.1)k=i;else break;}lockLine=k;}} };
 seek.onchange=()=>seeking=false;
 document.getElementById("back5").onclick=()=>{a.currentTime=Math.max(0,a.currentTime-5); if(loopMode==="line"){const t=a.currentTime;let k=0;for(let i=0;i<TIMING.length;i++){if(t>=TIMING[i][0]-0.1)k=i;else break;}lockLine=k;}};
-document.querySelectorAll("#speeds button").forEach(b=>b.onclick=()=>{
-  document.querySelectorAll("#speeds button").forEach(x=>x.classList.remove("on"));
-  b.classList.add("on");speed=+b.dataset.r;a.playbackRate=speed;a.preservesPitch=true;
-});
+document.getElementById("speedSel").onchange=e=>{speed=+e.target.value;a.playbackRate=speed;a.preservesPitch=true;};
 // ---------- 校正模式 ----------
 const ORIG=JSON.parse(JSON.stringify(TIMING));
 function applyStarts(st,end){ // st: 每句開始時間；end: 最後一句結束
@@ -384,7 +444,7 @@ function applyStarts(st,end){ // st: 每句開始時間；end: 最後一句結�
     TIMING[i][2]=o[2].map(([a,b])=>[+(s+(a-os)*sc).toFixed(2),+(s+(b-os)*sc).toFixed(2)]);
   }
 }
-try{const sv=JSON.parse(localStorage.getItem("ttd_cal")||"null"); if(sv&&sv.st&&sv.st.length===TIMING.length)applyStarts(sv.st,sv.end);}catch(e){}
+try{const sv=JSON.parse(localStorage.getItem("ttd_cal2")||"null"); if(sv&&sv.st&&sv.st.length===TIMING.length)applyStarts(sv.st,sv.end);}catch(e){}
 const cal=document.getElementById("cal"),calMsg=document.getElementById("calMsg"),calNext=document.getElementById("calNext");
 let marks=[];
 function calShow(){
@@ -403,7 +463,7 @@ document.getElementById("calTap").onclick=()=>{
   if(marks.length<TIMING.length){ marks.push(Math.max(0,t)); calShow(); return; }
   const end=+(a.currentTime).toFixed(2); a.pause();
   applyStarts(marks,end);
-  try{localStorage.setItem("ttd_cal",JSON.stringify({st:marks,end}));}catch(e){}
+  try{localStorage.setItem("ttd_cal2",JSON.stringify({st:marks,end}));}catch(e){}
   calMsg.textContent="✅ 校正完成！已套用在這台裝置。若要讓其他裝置也準，請把下面資料複製貼給 Claude。";
   calNext.textContent=""; document.getElementById("calTap").style.display="none";
   const out=document.getElementById("calOut"); out.value="CAL:"+JSON.stringify({st:marks,end}); out.style.display="inline-block";
@@ -411,8 +471,10 @@ document.getElementById("calTap").onclick=()=>{
 };
 document.getElementById("calUndo").onclick=()=>{ if(marks.length){ marks.pop(); const back=marks.length?marks[marks.length-1]:0; a.currentTime=Math.max(0,back-0.5); a.play().catch(()=>{}); calShow(); } };
 document.getElementById("calCancel").onclick=()=>{ a.pause(); cal.style.display="none"; };
-document.getElementById("calReset").onclick=()=>{ for(let i=0;i<TIMING.length;i++){TIMING[i][0]=ORIG[i][0];TIMING[i][1]=ORIG[i][1];TIMING[i][2]=JSON.parse(JSON.stringify(ORIG[i][2]));} try{localStorage.removeItem("ttd_cal");}catch(e){} a.pause(); cal.style.display="none"; };
+document.getElementById("calReset").onclick=()=>{ for(let i=0;i<TIMING.length;i++){TIMING[i][0]=ORIG[i][0];TIMING[i][1]=ORIG[i][1];TIMING[i][2]=JSON.parse(JSON.stringify(ORIG[i][2]));} try{localStorage.removeItem("ttd_cal2");}catch(e){} a.pause(); cal.style.display="none"; };
 document.getElementById("calCopy").onclick=()=>{ const o=document.getElementById("calOut"); o.select(); navigator.clipboard&&navigator.clipboard.writeText(o.value).catch(()=>{}); document.getElementById("calCopy").textContent="✅ 已複製（也可以手動長按全選）"; };
+document.getElementById("maskSel").onchange=e=>{maskLevel=+e.target.value; document.querySelectorAll(".w.revealed").forEach(w=>w.classList.remove("revealed")); redrawAll();};
+document.getElementById("tend").onchange=e=>{showEnd=e.target.checked; document.body.classList.toggle("noend",!showEnd); redrawAll();};
 document.getElementById("gear").onclick=()=>document.getElementById("settings").classList.toggle("open");
 document.getElementById("tzh").onchange=e=>document.body.classList.toggle("nozh",!e.target.checked);
 document.getElementById("tcue").onchange=e=>document.body.classList.toggle("nocue",!e.target.checked);
